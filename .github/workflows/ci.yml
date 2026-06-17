@@ -337,7 +337,7 @@ jobs:
     - name: Download and install SWIG
       run: |
         $swigUrl = "https://github.com/swig/swig/releases/download/v4.0.2/swigwin-4.0.2.zip"
-        curl -L $swigUrl -o swig.zip
+        curl.exe -L $swigUrl -o swig.zip
         7z x swig.zip -oswig_extracted
         New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\swig
         Copy-Item swig_extracted\swigwin-4.0.2\swig.exe qrenderdoc\3rdparty\swig\
