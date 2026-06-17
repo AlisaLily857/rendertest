@@ -303,7 +303,8 @@ jobs:
         arch: 'win32_msvc2019'
     - name: Copy Qt tools to project
       run: |
-        $qtBase = "$env:GITHUB_WORKSPACE\Qt"
+        $repoName = Split-Path $env:GITHUB_WORKSPACE -Leaf
+        $qtBase = (Split-Path $env:GITHUB_WORKSPACE -Parent) + "\Qt"
         Write-Host "Searching for Qt tools in: $qtBase"
         $moc64 = Get-ChildItem -Path $qtBase -Recurse -Filter "moc.exe" -ErrorAction SilentlyContinue | Where-Object { $_.DirectoryName -match "64" } | Select-Object -First 1
         $moc32 = Get-ChildItem -Path $qtBase -Recurse -Filter "moc.exe" -ErrorAction SilentlyContinue | Where-Object { $_.DirectoryName -notmatch "64" } | Select-Object -First 1
@@ -316,7 +317,7 @@ jobs:
           if (Test-Path $rcc) { Copy-Item $rcc qrenderdoc\3rdparty\qt\x64\bin\ }
           Write-Host "Copied 64-bit Qt tools from $($moc64.DirectoryName)"
         } else {
-          Write-Host "ERROR: 64-bit moc.exe not found!"
+          Write-Host "ERROR: 64-bit moc.exe not found in $qtBase!"
           exit 1
         }
         if ($moc32) {
