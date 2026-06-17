@@ -99,7 +99,7 @@ win32 {
 	LIBS += user32.lib
 
 	# Link against the core library
-	LIBS += $$DESTDIR/renderdoc.lib
+	LIBS += $$DESTDIR/rendertest.lib
 
 	# Link against the version library
 	LIBS += $$DESTDIR/version.lib
@@ -126,7 +126,7 @@ win32 {
 	OBJECTS_DIR = .obj
 
 	# Link against the core library
-	LIBS += -lrenderdoc
+	LIBS += -lrendertest
 	QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\',-rpath,\'\$$ORIGIN/../lib'$$LIB_SUFFIX'/'$$LIB_SUBFOLDER_TRAIL_SLASH'\''
 
 	# Add the SWIG files that were generated in cmake
@@ -149,7 +149,7 @@ win32 {
 		# add qrc file with qt.conf
 		RESOURCES += Resources/qtconf.qrc
 		
-		librd.files = $$files($$DESTDIR/../lib/librenderdoc.dylib)
+		librd.files = $$files($$DESTDIR/../lib/librendertest.dylib)
 		librd.path = Contents/lib
 		QMAKE_BUNDLE_DATA += librd
 
