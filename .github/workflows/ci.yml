@@ -287,9 +287,19 @@ jobs:
       run: |
         curl https://renderdoc.org/qrenderdoc_3rdparty.zip -O
         7z x qrenderdoc_3rdparty.zip
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+        dir: 'C:/Qt'
     - name: Set up Visual Studio tools
       uses: microsoft/setup-msbuild@v3
     - name: Building solution
+      env:
+        RENDERDOC_QT_PREFIX64: 'C:/Qt/5.15.2/msvc2019_64'
       run: msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
       shell: powershell
     - if: matrix.configuration == 'Development'
@@ -491,7 +501,7 @@ jobs:
     - if: matrix.type == 'Debug'
       name: Run core unit tests
       run: |
-        if ! ./build/bin/renderdoccmd test unit -o test.log; then
+        if ! ./build/bin/rendertestcmd test unit -o test.log; then
           echo "::error::$(cat test.log)" | tr '\n' '\001' | sed -e $'s#\x01#%0A#g';
           exit 1;
         fi
