@@ -541,6 +541,7 @@ jobs:
         fi
     - if: matrix.type == 'Release' && github.event_name == 'push'
       name: Preparing for deploy
+      continue-on-error: true
       run: ./util/buildscripts/scripts/prepare_deps_macos.sh ./build/bin/qrendertest.app/Contents/MacOS/qrendertest
     - if: matrix.type == 'Release' && github.event_name == 'push'
       name: Packaging artifacts for nightly build
