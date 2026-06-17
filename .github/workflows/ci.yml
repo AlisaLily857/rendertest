@@ -301,38 +301,48 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win32_msvc2019'
-    - name: Copy Qt tools to project
+    - name: Copy Qt tools to project and set Qt paths
       run: |
         $repoName = Split-Path $env:GITHUB_WORKSPACE -Leaf
         $qtBase = (Split-Path $env:GITHUB_WORKSPACE -Parent) + "\Qt"
-        Write-Host "Searching for Qt tools in: $qtBase"
-        $moc64 = Get-ChildItem -Path $qtBase -Recurse -Filter "moc.exe" -ErrorAction SilentlyContinue | Where-Object { $_.DirectoryName -match "64" } | Select-Object -First 1
-        $moc32 = Get-ChildItem -Path $qtBase -Recurse -Filter "moc.exe" -ErrorAction SilentlyContinue | Where-Object { $_.DirectoryName -notmatch "64" } | Select-Object -First 1
-        if ($moc64) {
+        $qt64 = "$qtBase\5.15.2\msvc2019_64"
+        $qt32 = "$qtBase\5.15.2\msvc2019"
+        Write-Host "Qt 64-bit path: $qt64"
+        Write-Host "Qt 32-bit path: $qt32"
+        if (Test-Path "$qt64\bin\moc.exe") {
           New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\qt\x64\bin
-          Copy-Item $moc64.FullName qrenderdoc\3rdparty\qt\x64\bin\
-          $uic = Join-Path $moc64.DirectoryName "uic.exe"
-          $rcc = Join-Path $moc64.DirectoryName "rcc.exe"
-          if (Test-Path $uic) { Copy-Item $uic qrenderdoc\3rdparty\qt\x64\bin\ }
-          if (Test-Path $rcc) { Copy-Item $rcc qrenderdoc\3rdparty\qt\x64\bin\ }
-          Write-Host "Copied 64-bit Qt tools from $($moc64.DirectoryName)"
+          Copy-Item "$qt64\bin\moc.exe" qrenderdoc\3rdparty\qt\x64\bin\
+          Copy-Item "$qt64\bin\uic.exe" qrenderdoc\3rdparty\qt\x64\bin\
+          Copy-Item "$qt64\bin\rcc.exe" qrenderdoc\3rdparty\qt\x64\bin\
+          Write-Host "Copied 64-bit Qt tools"
         } else {
-          Write-Host "ERROR: 64-bit moc.exe not found in $qtBase!"
+          Write-Host "ERROR: 64-bit moc.exe not found in $qt64!"
           exit 1
         }
-        if ($moc32) {
+        if (Test-Path "$qt32\bin\moc.exe") {
           New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\qt\Win32\bin
-          Copy-Item $moc32.FullName qrenderdoc\3rdparty\qt\Win32\bin\
-          $uic = Join-Path $moc32.DirectoryName "uic.exe"
-          $rcc = Join-Path $moc32.DirectoryName "rcc.exe"
-          if (Test-Path $uic) { Copy-Item $uic qrenderdoc\3rdparty\qt\Win32\bin\ }
-          if (Test-Path $rcc) { Copy-Item $rcc qrenderdoc\3rdparty\qt\Win32\bin\ }
-          Write-Host "Copied 32-bit Qt tools from $($moc32.DirectoryName)"
+          Copy-Item "$qt32\bin\moc.exe" qrenderdoc\3rdparty\qt\Win32\bin\
+          Copy-Item "$qt32\bin\uic.exe" qrenderdoc\3rdparty\qt\Win32\bin\
+          Copy-Item "$qt32\bin\rcc.exe" qrenderdoc\3rdparty\qt\Win32\bin\
+          Write-Host "Copied 32-bit Qt tools"
         } else {
           Write-Host "WARNING: 32-bit moc.exe not found (may not be needed)"
         }
+        # Set environment variables for Qt paths so .vcxproj picks them up
+        echo "RENDERDOC_QT_PREFIX64=$qt64" >> $env:GITHUB_ENV
+        echo "RENDERDOC_QT_PREFIX32=$qt32" >> $env:GITHUB_ENV
+        Write-Host "Set RENDERDOC_QT_PREFIX64=$qt64"
+        Write-Host "Set RENDERDOC_QT_PREFIX32=$qt32"
       shell: powershell
-    - name: Set up Visual Studio tools
+    - name: Download and install SWIG
+      run: |
+        $swigUrl = "https://github.com/swig/swig/releases/download/v4.0.2/swigwin-4.0.2.zip"
+        curl -L $swigUrl -o swig.zip
+        7z x swig.zip -oswig_extracted
+        New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\swig
+        Copy-Item swig_extracted\swigwin-4.0.2\swig.exe qrenderdoc\3rdparty\swig\
+        Write-Host "Installed SWIG to qrenderdoc\3rdparty\swig\swig.exe"
+      shell: powershell
       uses: microsoft/setup-msbuild@v3
     - name: Building solution
       run: msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
