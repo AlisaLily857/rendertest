@@ -298,9 +298,9 @@ jobs:
     - name: Set up Visual Studio tools
       uses: microsoft/setup-msbuild@v3
     - name: Building solution
-      env:
-        RENDERDOC_QT_PREFIX64: 'C:/Qt/5.15.2/msvc2019_64'
-      run: msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
+      run: |
+        $env:RENDERDOC_QT_PREFIX64 = "C:\Qt\5.15.2\msvc2019_64"
+        msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
       shell: powershell
     - if: matrix.configuration == 'Development'
       name: Running core unit tests
