@@ -390,6 +390,7 @@ jobs:
         # Cleanup
         Remove-Item swigwin.zip -Force -ErrorAction SilentlyContinue
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        exit 0
       shell: powershell
     - name: Set up Visual Studio tools
       uses: microsoft/setup-msbuild@v3
