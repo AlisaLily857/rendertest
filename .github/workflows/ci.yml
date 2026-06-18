@@ -336,11 +336,11 @@ jobs:
       shell: powershell
     - name: Download and install SWIG
       run: |
-        $swigUrl = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download"
-        Invoke-WebRequest -Uri $swigUrl -OutFile swig.zip -UseBasicParsing -MaximumRedirection 10
-        7z x swig.zip -oswig_extracted
+        pip install swig
+        $swigPath = (Get-Command swig.exe).Source
+        Write-Host "SWIG installed at: $swigPath"
         New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\swig
-        Copy-Item swig_extracted\swigwin-4.0.2\swig.exe qrenderdoc\3rdparty\swig\
+        Copy-Item $swigPath qrenderdoc\3rdparty\swig\
         Write-Host "Installed SWIG to qrenderdoc\3rdparty\swig\swig.exe"
       shell: powershell
     - name: Set up Visual Studio tools
