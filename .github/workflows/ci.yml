@@ -336,13 +336,13 @@ jobs:
       shell: powershell
     - name: Download and install SWIG
       run: |
-        $swigUrl = "https://downloads.sourceforge.net/project/swig/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip"
+        $swigUrl = "https://downloads.sourceforge.net/project/swig/swigwin/swigwin-4.1.1/swigwin-4.1.1.zip"
         curl.exe -L --retry 3 $swigUrl -o swig.zip
         7z x swig.zip -oswig_extracted
         New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\swig
-        Copy-Item swig_extracted\swigwin-4.0.2\swig.exe qrenderdoc\3rdparty\swig\
-        Copy-Item -Path swig_extracted\swigwin-4.0.2\Lib\* -Destination qrenderdoc\3rdparty\swig\ -Recurse -Force
-        Write-Host "Installed SWIG from SourceForge to qrenderdoc\3rdparty\swig\swig.exe"
+        Copy-Item swig_extracted\swigwin-4.1.1\swig.exe qrenderdoc\3rdparty\swig\
+        Copy-Item -Path swig_extracted\swigwin-4.1.1\Lib\* -Destination qrenderdoc\3rdparty\swig\ -Recurse -Force
+        Write-Host "Installed SWIG 4.1.1 from SourceForge to qrenderdoc\3rdparty\swig\swig.exe"
       shell: powershell
     - name: Set up Visual Studio tools
       uses: microsoft/setup-msbuild@v3
