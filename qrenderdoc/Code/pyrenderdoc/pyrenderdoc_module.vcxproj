@@ -95,7 +95,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/wd4100 /wd4512 /std:c++14 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\;$(PythonIncludeDir);$(SolutionDir)\renderdoc\api\replay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\;$(PythonIncludeDir);$(SolutionDir)\renderdoc\api\replay;$(SolutionDir)\qrenderdoc\3rdparty\swig\Lib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
