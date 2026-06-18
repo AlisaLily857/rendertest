@@ -235,16 +235,10 @@ VA_IGNORE_REST_OF_FILE
 %typemap(ret) const ActionDescription * {
   // for ActionDescription pointers don't apply parent tracking, since these are preserved
   // in other ways and the linked-list nature of walking them can produce absurdly long
-  // parent chains
-  if (SwigPyObject_Check($result))
-  {
-    SwigPyObject *sobj = (SwigPyObject *)$result;
-    if(sobj->parent)
-    {
-      sobj->parent = NULL;
-      Py_DECREF($self);
-    }
-  }
+  // parent chains. Standard SWIG (4.0.2+) does not have a parent field in SwigPyObject,
+  // so this typemap is a no-op when using unpatched SWIG.
+  (void)$result;
+  (void)$self;
 }
 
 SIMPLE_TYPEMAPS(rdcstr)
