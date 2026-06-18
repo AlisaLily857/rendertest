@@ -336,6 +336,8 @@ jobs:
       shell: powershell
     - name: Download and install SWIG
       run: |
+        # Remove pip-installed swig if present to avoid conflicts
+        pip uninstall swig -y 2>$null
         # Download official SWIG 4.0.2 Windows precompiled zip from SourceForge
         $swigUrl = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download"
         Write-Host "Downloading SWIG from $swigUrl"
@@ -382,6 +384,13 @@ jobs:
         }
         $swigVer = & $swigPath -version 2>&1 | Select-String -Pattern "SWIG Version" | Select-Object -First 1
         Write-Host $swigVer
+        # Check swig lib path
+        $swigLibPath = & $swigPath -swiglib 2>&1
+        Write-Host "SWIG lib path: $swigLibPath"
+        # Set SWIG_LIB env var to ensure swig uses our Lib directory
+        $swigLibDir = Resolve-Path "qrenderdoc\3rdparty\swig\Lib"
+        [System.Environment]::SetEnvironmentVariable("SWIG_LIB", $swigLibDir, "Process")
+        Write-Host "Set SWIG_LIB=$swigLibDir"
         # Check critical files
         $checkFiles = @("enums.swg", "python.swg", "pyrun.swg")
         foreach ($f in $checkFiles) {
@@ -391,6 +400,9 @@ jobs:
         # Check for SWIG_Python_CheckNoKeywords
         $found = Select-String -Path qrenderdoc\3rdparty\swig\Lib\python\*.swg -Pattern "SWIG_Python_CheckNoKeywords" -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($found) { Write-Host "SWIG_Python_CheckNoKeywords found in: $($found.Path)" } else { Write-Host "SWIG_Python_CheckNoKeywords NOT FOUND" }
+        # Check for parent field in SwigPyObject
+        $found = Select-String -Path qrenderdoc\3rdparty\swig\Lib\python\pyrun.swg -Pattern "PyObject \*parent;" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($found) { Write-Host "SwigPyObject parent field found" } else { Write-Host "SwigPyObject parent field NOT FOUND" }
         # Cleanup
         Remove-Item swigwin.zip -Force -ErrorAction SilentlyContinue
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
