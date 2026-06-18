@@ -339,16 +339,27 @@ jobs:
         # Download official SWIG 4.0.2 Windows precompiled zip from SourceForge
         $swigUrl = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download"
         Write-Host "Downloading SWIG from $swigUrl"
-        Invoke-WebRequest -Uri $swigUrl -OutFile swigwin.zip -MaximumRedirection 10
+        curl.exe -L -o swigwin.zip "$swigUrl"
         if (-not (Test-Path swigwin.zip)) {
           Write-Host "ERROR: Failed to download swigwin.zip"
           exit 1
         }
-        Write-Host "Downloaded swigwin.zip"
+        $fileSize = (Get-Item swigwin.zip).Length
+        Write-Host "Downloaded swigwin.zip (size: $fileSize bytes)"
+        if ($fileSize -lt 1000000) {
+          Write-Host "ERROR: Downloaded file is too small, likely not a valid zip"
+          Get-Content swigwin.zip -Head 5
+          exit 1
+        }
         # Extract to temp
         $tempDir = "$env:TEMP\swigwin"
         New-Item -ItemType Directory -Force -Path $tempDir
-        Expand-Archive -Path swigwin.zip -DestinationPath $tempDir -Force
+        try {
+          Expand-Archive -Path swigwin.zip -DestinationPath $tempDir -Force
+        } catch {
+          Write-Host "ERROR: Failed to extract zip: $_"
+          exit 1
+        }
         # Find the extracted swigwin directory
         $swigWinDir = Get-ChildItem -Path $tempDir -Directory | Where-Object { $_.Name -like "swigwin*" } | Select-Object -First 1
         if (-not $swigWinDir) {
