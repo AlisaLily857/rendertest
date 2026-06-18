@@ -339,6 +339,8 @@ jobs:
         pip install swig==4.0.2
         $swigPath = (Get-Command swig.exe).Source
         Write-Host "SWIG installed at: $swigPath"
+        & $swigPath -version
+        & $swigPath -help | Select-String -Pattern "enumclass"
         New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\swig
         Copy-Item $swigPath qrenderdoc\3rdparty\swig\
         Write-Host "Installed SWIG to qrenderdoc\3rdparty\swig\swig.exe"
