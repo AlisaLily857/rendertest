@@ -943,8 +943,8 @@ int main(int, char *)
 #endif
 
   // this installs a global windows hook pointing at renderdocshim*.dll that filters all running
-  // processes and loads rendertest.dll in the target one. In any other process it unloads as soon as
-  // possible
+  // processes and loads rendertest.dll in the target one. In any other process it unloads as soon
+  // as possible
   add_command("globalhook", new GlobalHookCommand());
 
   return renderdoccmd(env, argv);
