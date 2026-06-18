@@ -338,11 +338,19 @@ jobs:
       run: |
         pip install swig==4.0.2
         $swigPath = (Get-Command swig.exe).Source
+        $swigDir = Split-Path $swigPath -Parent
+        $swigLib = (Get-ChildItem -Path $swigDir -Recurse -Filter "swig.swg" -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
+        if (-not $swigLib) {
+          $swigLib = (Get-ChildItem -Path C:\hostedtoolcache\windows\Python -Recurse -Filter "swig.swg" -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
+        }
         Write-Host "SWIG installed at: $swigPath"
-        & $swigPath -version
-        & $swigPath -help | Select-String -Pattern "enumclass"
+        Write-Host "SWIG lib at: $swigLib"
         New-Item -ItemType Directory -Force -Path qrenderdoc\3rdparty\swig
         Copy-Item $swigPath qrenderdoc\3rdparty\swig\
+        if ($swigLib) {
+          Copy-Item -Path $swigLib\* -Destination qrenderdoc\3rdparty\swig\ -Recurse -Force
+        }
+        echo "SWIG_LIB=$swigLib" >> $env:GITHUB_ENV
         Write-Host "Installed SWIG to qrenderdoc\3rdparty\swig\swig.exe"
       shell: powershell
     - name: Set up Visual Studio tools
