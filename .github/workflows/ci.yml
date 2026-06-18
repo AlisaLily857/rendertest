@@ -334,14 +334,22 @@ jobs:
         Write-Host "Set RENDERDOC_QT_PREFIX64=$qt64"
         Write-Host "Set RENDERDOC_QT_PREFIX32=$qt32"
       shell: powershell
-    - name: Download and install SWIG
+    - name: Install SWIG
+      uses: mmomtchev/setup-swig@v4
+      with:
+        version: 4.0.2
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Copy SWIG to project
       run: |
-        pip install swig
         $swigPath = (Get-Command swig.exe).Source
         $swigDir = Split-Path $swigPath -Parent
         $swigLib = (Get-ChildItem -Path $swigDir -Recurse -Filter "swig.swg" -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
         if (-not $swigLib) {
-          $swigLib = (Get-ChildItem -Path C:\hostedtoolcache\windows\Python -Recurse -Filter "swig.swg" -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
+          # fallback: search in Program Files
+          $swigLib = (Get-ChildItem -Path "C:\Program Files" -Recurse -Filter "swig.swg" -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
+        }
+        if (-not $swigLib) {
+          $swigLib = (Get-ChildItem -Path "C:\Program Files (x86)" -Recurse -Filter "swig.swg" -ErrorAction SilentlyContinue | Select-Object -First 1).DirectoryName
         }
         Write-Host "SWIG installed at: $swigPath"
         Write-Host "SWIG lib at: $swigLib"
